@@ -189,24 +189,21 @@ class SmearSlider(bpy.types.Panel):
 
 class ArmMenu(bpy.types.Panel):
     
-    @classmethod
-    def poll(cls, context):
-        if bpy.context.scene.EpicRigTabs == 0:
-            return True
-                        
+    class ArmMenu(bpy.types.Panel):
     bl_label = "Arm Menu"
     bl_idname = "EPIC_PT_arm_menu"
-    bl_parent_id = "EPIC_FIGRIG_PT_PANEL"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'EpicFigRig'  
-    bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = "EPICFIGRIGPTPANEL"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "EpicFigRig"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    @classmethod
+def poll(cls, context):
+    return context.scene.EpicRigTabs == 0
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        sub = row.row()
-        sub.enabled = True
                 
         check_prop = False
         for obj in bpy.context.selected_objects:
@@ -323,9 +320,8 @@ class LegMenu(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
     
     @classmethod
-    def poll(cls, context):
-        if bpy.context.scene.EpicRigTabs == 0:
-            return True
+def poll(cls, context):
+    return context.scene.EpicRigTabs == 0
 
     def draw(self, context):
         layout = self.layout
