@@ -188,23 +188,20 @@ class SmearSlider(bpy.types.Panel):
         row.prop(context.active_object.pose.bones["MasterBone"], '["RArmSmear"]', slider=True)
 
 class ArmMenu(bpy.types.Panel):
-    
-    class ArmMenu(bpy.types.Panel):
     bl_label = "Arm Menu"
     bl_idname = "EPIC_PT_arm_menu"
-    bl_parent_id = "EPICFIGRIGPTPANEL"
+    bl_parent_id = "EPIC_FIGRIG_PT_PANEL"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "EpicFigRig"
     bl_options = {"DEFAULT_CLOSED"}
 
-    @classmethod
-def poll(cls, context):
-    return context.scene.EpicRigTabs == 0
-
     def draw(self, context):
         layout = self.layout
-                
+        row = layout.row()
+        sub = row.row()
+        sub.enabled = True
+
         check_prop = False
         for obj in bpy.context.selected_objects:
             if obj.type == 'ARMATURE':
@@ -212,19 +209,20 @@ def poll(cls, context):
                 selected_armature = obj.name
                 check_prop = True
                 break
-                
+
         if not check_prop or not context.active_object or context.active_object.type != 'ARMATURE' or not context.active_object.pose:
-            row.label(text = "(Select an Armature for Settings)")
+            row.label(text="(Select an Armature for Settings)")
         else:
             if bpy.context.active_object.pose.bones["MasterBone"]["Hand Menu"] == 0:
                 sub.enabled = True
                 sub = row.row()
                 row = layout.row()
                 row = layout.row(align=True)
-                row.operator('left_hand.menu', icon= 'EVENT_L')
-                row.operator('right_hand.menu')                  
+                row.operator('left_hand.menu', icon='EVENT_L')
+                row.operator('right_hand.menu')
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["LeftArmIK"]', slider=True)
+
                 if bpy.context.active_object.pose.bones["MasterBone"]["LeftArmIK"] == 0:
                     sub.enabled = True
                     row = self.layout.row()
@@ -239,9 +237,8 @@ def poll(cls, context):
                     row = layout.row(align=True)
                     row.operator('ik_to.fk_larm')
                     row = layout.row()
-                    row.prop(context.active_object.pose.bones["MasterBone"], '["IK Arm Socket Lock"]', slider=True)
-                    row = layout.row()
-           
+
+                row.prop(context.active_object.pose.bones["MasterBone"], '["IK Arm Socket Lock"]', slider=True)
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["Invert Left Arm"]', slider=True)
                 row = layout.row()
@@ -250,15 +247,17 @@ def poll(cls, context):
                 row.prop(context.active_object.pose.bones["MasterBone"], '["LArmSmear"]', slider=True)
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["Clay Left Arm Visibility"]', slider=True)
+
             else:
                 sub.enabled = True
                 sub = row.row()
                 row = layout.row()
                 row = layout.row(align=True)
                 row.operator('left_hand.menu')
-                row.operator('right_hand.menu', icon= 'EVENT_R')        
+                row.operator('right_hand.menu', icon='EVENT_R')
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["RightArmIK"]', slider=True)
+
                 if bpy.context.active_object.pose.bones["MasterBone"]["RightArmIK"] == 0:
                     sub.enabled = True
                     row = self.layout.row()
@@ -273,9 +272,8 @@ def poll(cls, context):
                     row = layout.row(align=True)
                     row.operator('ik_to.fk_rarm')
                     row = layout.row()
-                    row.prop(context.active_object.pose.bones["MasterBone"], '["IK Arm Socket Lock"]', slider=True)
-                    row = layout.row()
 
+                row.prop(context.active_object.pose.bones["MasterBone"], '["IK Arm Socket Lock"]', slider=True)
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["Invert Right Arm"]', slider=True)
                 row = layout.row()
@@ -284,7 +282,7 @@ def poll(cls, context):
                 row.prop(context.active_object.pose.bones["MasterBone"], '["RArmSmear"]', slider=True)
                 row = layout.row()
                 row.prop(context.active_object.pose.bones["MasterBone"], '["Clay Right Arm Visibility"]', slider=True)
-            
+
             row = layout.row()
             row.prop(context.active_object.pose.bones["MasterBone"], '["Lepin Hands"]', slider=True)
             row = layout.row()
@@ -310,24 +308,20 @@ class RightHandMenu(bpy.types.Operator):
         return {'FINISHED'}
                
 class LegMenu(bpy.types.Panel):
-    
     bl_label = "Leg Menu"
     bl_idname = "EPIC_PT_leg_menu"
     bl_parent_id = "EPIC_FIGRIG_PT_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'EpicFigRig'  
+    bl_category = 'EpicFigRig'
     bl_options = {'DEFAULT_CLOSED'}
-    
+
     @classmethod
-def poll(cls, context):
-    return context.scene.EpicRigTabs == 0
+    def poll(cls, context):
+        return context.scene.EpicRigTabs == 0
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        sub = row.row()
-        sub.enabled = True
 
         check_prop = False
         for obj in bpy.context.selected_objects:
@@ -679,16 +673,16 @@ class AutoRig(bpy.types.Operator):
         capes = ["20547","23901","29453","34721p1","50231","50525","56630","56630","65384","99464",]
         
         skirts = ["txt2","txt3","33426","26697","68054"]
-        
-        selected_objects = bpy.context.selected_objects
-        loc = bpy.context.selected_objects[0]
-        
+
+        selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH' and obj.data]
+        if not selected_objects:
+            self.report({'ERROR'}, "No mesh objects found in selection")
+            return {'CANCELLED'}
+        loc = selected_objects[0]
 
         child = False 
-        for fig in bpy.context.selected_objects:
-            
+        for fig in selected_objects:
             for num in child_leg:
-                #if num in fig.data.name:
                 if num[:5] in fig.data.name:
                     child = True
            
@@ -2289,7 +2283,7 @@ def unregister():
     bpy.utils.unregister_class(LegMenu)
     bpy.utils.unregister_class(MainTab)
     bpy.utils.unregister_class(AdvancedTab)
-    bpy.utils.unregister_class(Props)
+    bpy.utils.register_class(Props)
     bpy.utils.unregister_class(LeftHandMenu)
     bpy.utils.unregister_class(RightHandMenu)
     bpy.utils.unregister_class(LeftLegMenu)
